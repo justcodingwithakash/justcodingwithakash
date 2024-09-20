@@ -1,0 +1,181 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+    int value;
+    struct node *prev;
+    struct node *next;
+} *tail = NULL;
+
+struct node *createnode() {
+    struct node *ptr = (struct node *)malloc(sizeof(struct node));
+    if (ptr == NULL) {
+        printf("Memory allocation failed!\n");
+        exit(1);
+    }
+    printf("Enter the value of the node: ");
+    scanf("%d", &ptr->value);
+    ptr->prev = NULL;
+    ptr->next = NULL;
+    return ptr;
+}
+
+void insertatbegin() {
+    struct node *ptr = createnode();
+    if (tail == NULL) {
+        tail = ptr;
+        ptr->prev = ptr;
+        ptr->next = ptr;
+    } else {
+        ptr->next = tail->next;  
+        ptr->prev = tail;      
+        tail->next->prev = ptr;  
+        tail->next = ptr;      
+    }
+}
+
+void insertatend() {
+    struct node *ptr = createnode();
+    if (tail == NULL) {
+        tail = ptr;
+        ptr->prev = ptr;
+        ptr->next = ptr;
+    } else {
+        ptr->next = tail->next;
+        ptr->prev = tail;       
+        tail->next->prev = ptr;  
+        tail->next = ptr;        
+        tail = ptr;             
+    }
+}
+
+void insertatanypoint() {
+    if (tail == NULL) {
+        printf("List is empty. Please add nodes first.\n");
+        return;
+    }
+
+    int pos;
+    printf("Enter the position to insert: ");
+    scanf("%d", &pos);
+    
+    struct node *ptr = createnode();
+    struct node *temp = tail->next;  
+
+    for (int i = 1; i < pos - 1; i++) {
+        temp = temp->next;
+        if (temp == tail->next) {
+            printf("Position out of bounds. Inserting at end instead.\n");
+            insertatend();
+            return;
+        }
+    }
+
+    ptr->next = temp->next;         
+    ptr->prev = temp;                
+    temp->next->prev = ptr;      
+    temp->next = ptr;              
+}
+
+void deleteatbegin() {
+    if (tail == NULL) {
+        printf("No elements present\n");
+        return;
+    }
+
+    struct node *temp = tail->next;  
+    if (temp == tail) {
+        free(temp);
+        tail = NULL;
+    } else {
+        tail->next = temp->next;   
+        temp->next->prev = tail;   
+        free(temp);
+    }
+}
+
+void deleteatend() {
+    if (tail == NULL) {
+        printf("No elements present\n");
+        return;
+    }
+
+    struct node *temp = tail;  
+    if (temp->next == tail) {
+        free(temp);
+        tail = NULL;
+    } else {
+        tail = tail->prev;      
+        tail->next = temp->next;  
+        temp->next->prev = tail;   
+        free(temp);
+    }
+}
+
+void deleteatanypoint() {
+    if (tail == NULL) {
+        printf("List is empty\n");
+        return;
+    }
+
+    int pos;
+    printf("Enter the position to delete: ");
+    scanf("%d", &pos);
+
+    struct node *temp = tail->next;  
+    for (int i = 1; i < pos; i++) {
+        temp = temp->next;
+        if (temp == tail->next) {
+            printf("Position out of bounds.\n");
+            return;
+        }
+    }
+
+
+    if (temp == tail) {
+        deleteatend();  
+    } else {
+        temp->prev->next = temp->next;  
+        temp->next->prev = temp->prev;  
+        free(temp);
+    }
+}
+
+void display() {
+    if (tail == NULL) {
+        printf("Empty List!...\n");
+        return;
+    }
+
+    struct node *ptr = tail->next; 
+    printf("List Elements: ");
+    do {
+        printf("%d ", ptr->value);
+        ptr = ptr->next;
+    } while (ptr != tail->next);
+    printf("\n");
+}
+
+int main() {
+    int choice;
+
+    while (1) {
+        printf("\n1. Insert at Beginning\n2. Insert at End\n3. Insert at Any Point\n4. Delete at Beginning\n5. Delete at End\n6. Delete at Any Point\n7. Display\n8. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        
+        switch (choice) {
+            case 1: insertatbegin(); break;
+            case 2: insertatend(); break;
+            case 3: insertatanypoint(); break;
+            case 4: deleteatbegin(); break;
+            case 5: deleteatend(); break;
+            case 6: deleteatanypoint(); break;
+            case 7: display(); break;
+            case 8: exit(0);
+            default: printf("Invalid choice! Please try again.\n");
+        }
+    }
+
+    return 0;
+}
